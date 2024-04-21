@@ -9,17 +9,22 @@ const Menu = () => {
 
   const handleAddPost = (e) => {
     e.preventDefault();
-    if (editingId) {
+    const currentDate = new Date();
 
+    if (editingId) {
       setPosts(
         posts.map((post) => 
-          post.id === editingId ? { ...post, title, content } : post
+          post.id === editingId ? { ...post, title, content, createdAt: currentDate.toLocaleString() } : post
         )
       );
       setEditingId(null);
     } else {
-
-      const newPost = { id: Date.now(), title, content };
+      const newPost = { 
+        id: Date.now(), 
+        title, 
+        content, 
+        createdAt: currentDate.toLocaleString()
+      };
       setPosts([...posts, newPost]);
     }
     setTitle('');
@@ -37,6 +42,7 @@ const Menu = () => {
       setTitle(post.title);
       setContent(post.content);
       setEditingId(post.id); 
+
     }
   };
 
@@ -57,9 +63,7 @@ const Menu = () => {
             onChange={(e) => setTitle(e.target.value)}
             required
           />
-          <br></br>
-          <br></br>
-          <br></br>
+          <br /><br />
           <label htmlFor="content">Contenido:</label>
           <textarea
             id="content"
@@ -69,27 +73,28 @@ const Menu = () => {
           ></textarea>
           <button type="submit">{editingId ? 'Actualizar' : 'Crear'}</button>
         </form>
-
         <h2>Publicaciones Existentes</h2>
         <ul>
-  {posts.map((post) => (
-    <li key={post.id}>
-      <h3>{post.title}</h3>
-      <button onClick={() => handleViewPost(post.id)}>Visualizar</button>
-      <button onClick={() => handleEditPost(post.id)}>Editar</button>
-      <button onClick={() => handleDeletePost(post.id)}>Eliminar</button>
-    </li>
-  ))}
-</ul>
-<button onClick={() => window.location.reload()}>Refrescar</button>
-
+          {posts.map((post) => (
+            <li key={post.id}>
+              <h3>{post.title}</h3>
+              <p>{post.content}</p>
+              <p>Fecha de publicación: {post.createdAt}</p>
+              <button onClick={() => handleViewPost(post.id)}>Visualizar</button>
+              <button onClick={() => handleEditPost(post.id)}>Editar</button>
+              <button onClick={() => handleDeletePost(post.id)}>Eliminar</button>
+            </li>
+          ))}
+        </ul>
+        <button onClick={() => window.location.reload()}>Refrescar</button>
       </div>
-
       <div className="admin-preview">
         {selectedPost ? (
           <>
             <h2>{selectedPost.title}</h2>
             <p>{selectedPost.content}</p>
+            {}
+            <p>Fecha de publicación: {selectedPost.createdAt}</p>
           </>
         ) : (
           <div className="empty">Selecciona una publicación para ver más detalles</div>

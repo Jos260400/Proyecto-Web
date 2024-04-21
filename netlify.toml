@@ -1,0 +1,4 @@
+[[redirects]]
+  from = "/*"
+  to = "/Menu.jsx"
+  status = 200
