@@ -4,31 +4,47 @@ const Menu = () => {
   const [posts, setPosts] = useState([]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [editingId, setEditingId] = useState(null); 
+  const [image, setImage] = useState(null);
+  const [editingId, setEditingId] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
 
-  const handleAddPost = (e) => {
+  const emojis = ['😀', '😂', '😍', '🤔', '😭', '🤣', '😎', '😂', '🤐', '🥳', '😑', '🤑', '😴', '🤭', '🤭', '🤢', '🤯', '🥵', '🥶', '🤪', '😱', '🥺', '🤓', '😵', '😩', '🥴']; 
+
+  const handleImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setImage(e.target.files[0]);
+    }
+  };
+
+  const addEmoji = (emoji) => {
+    setContent(content + emoji);
+  };
+
+  const handleAddPost = async (e) => {
     e.preventDefault();
-    const currentDate = new Date();
+
+    const newPost = {
+      id: Date.now(),
+      title,
+      content,
+      image: image ? URL.createObjectURL(image) : null,
+      createdAt: new Date().toLocaleString(),
+    };
 
     if (editingId) {
       setPosts(
-        posts.map((post) => 
-          post.id === editingId ? { ...post, title, content, createdAt: currentDate.toLocaleString() } : post
+        posts.map((post) =>
+          post.id === editingId ? { ...newPost, createdAt: post.createdAt } : post
         )
       );
       setEditingId(null);
     } else {
-      const newPost = { 
-        id: Date.now(), 
-        title, 
-        content, 
-        createdAt: currentDate.toLocaleString()
-      };
       setPosts([...posts, newPost]);
     }
+
     setTitle('');
     setContent('');
+    setImage(null);
   };
 
   const handleViewPost = (postId) => {
@@ -38,12 +54,10 @@ const Menu = () => {
 
   const handleEditPost = (postId) => {
     const post = posts.find((post) => post.id === postId);
-    if (post) {
-      setTitle(post.title);
-      setContent(post.content);
-      setEditingId(post.id); 
-
-    }
+    setTitle(post.title);
+    setContent(post.content);
+    setImage(null);
+    setEditingId(post.id);
   };
 
   const handleDeletePost = (postId) => {
@@ -70,7 +84,32 @@ const Menu = () => {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             required
-          ></textarea>
+          />
+          <div>{emojis.map(emoji => (
+              <button
+                key={emoji}
+                type="button"
+                onClick={() => addEmoji(emoji)}
+                style={{ fontSize: '1.5rem', cursor: 'pointer', border: 'none', background: 'none' }}>
+                {emoji}
+              </button>
+            ))}
+          </div>
+          <br /><br />
+          <label htmlFor="image">Imagen:</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
+          {image && (
+            <img
+              src={URL.createObjectURL(image)}
+              alt="Preview"
+              style={{ width: '100px', height: 'auto' }}
+            />
+          )}
+          <br /><br />
           <button type="submit">{editingId ? 'Actualizar' : 'Crear'}</button>
         </form>
         <h2>Publicaciones Existentes</h2>
@@ -79,6 +118,13 @@ const Menu = () => {
             <li key={post.id}>
               <h3>{post.title}</h3>
               <p>{post.content}</p>
+              {post.image && (
+                <img
+                  src={post.image}
+                  alt="Post"
+                  style={{ width: '100px', height: 'auto' }}
+                />
+              )}
               <p>Fecha de publicación: {post.createdAt}</p>
               <button onClick={() => handleViewPost(post.id)}>Visualizar</button>
               <button onClick={() => handleEditPost(post.id)}>Editar</button>
@@ -86,18 +132,19 @@ const Menu = () => {
             </li>
           ))}
         </ul>
-        <button onClick={() => window.location.reload()}>Refrescar</button>
-      </div>
-      <div className="admin-preview">
-        {selectedPost ? (
-          <>
+        {selectedPost && (
+          <div className="admin-preview">
             <h2>{selectedPost.title}</h2>
             <p>{selectedPost.content}</p>
-            {}
+            {selectedPost.image && (
+              <img
+                src={selectedPost.image}
+                alt="Selected Post"
+                style={{ width: '100px', height: 'auto' }}
+              />
+            )}
             <p>Fecha de publicación: {selectedPost.createdAt}</p>
-          </>
-        ) : (
-          <div className="empty">Selecciona una publicación para ver más detalles</div>
+          </div>
         )}
       </div>
     </div>

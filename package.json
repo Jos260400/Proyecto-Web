@@ -1,9 +1,6 @@
-
 {
   "dependencies": {
+    "emoji-mart": "^5.5.2",
     "react-router-dom": "^6.22.3"
   }
 }
-
-
-
