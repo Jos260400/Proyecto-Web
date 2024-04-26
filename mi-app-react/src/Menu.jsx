@@ -1,162 +1,121 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Picker from 'emoji-picker-react';
+import './App.css';
 
-const Menu = () => {
-  const [userEmail, setUserEmail] = useState('');
-  const [posts, setPosts] = useState([]);
+function Menu() {
+  const navigate = useNavigate();
+
+  const [entries, setEntries] = useState([]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [image, setImage] = useState(null);
-  const [editingId, setEditingId] = useState(null);
-  const [selectedPost, setSelectedPost] = useState(null);
+  const [editingIndex, setEditingIndex] = useState(-1);
+  const [showPicker, setShowPicker] = useState(false);
+  const textAreaRef = useRef(null);
 
-  const emojis = ['😀', '😂', '😍', '🤔', '😭', '🤣', '😎', '😂', '🤐', '🥳', '😑', '🤑', '😴', '🤭', '🤭', '🤢', '🤯', '🥵', '🥶', '🤪', '😱', '🥺', '🤓', '😵', '😩', '🥴'];
-
-  useEffect(() => {
-    const email = localStorage.getItem('userEmail');
-    if (email) {
-      setUserEmail(email);
-    }
-  }, []);
-
-  const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
-    }
-  };
-
-  const addEmoji = (emoji) => {
-    setContent(content + emoji);
-  };
-
-  const handleAddPost = async (e) => {
-    e.preventDefault();
-    
-  
-    const newPost = {
-      id: editingId ? editingId : Date.now(),
-      title,
-      content,
-      userEmail,
-      image: image ? URL.createObjectURL(image) : null,
-      createdAt: new Date().toLocaleString(),
-    };
-
-    if (editingId) {
-      setPosts(posts.map((post) => (post.id === editingId ? newPost : post)));
+  const handleCreateOrUpdate = () => {
+    if (editingIndex >= 0) {
+      const updatedEntries = entries.map((entry, index) =>
+        index === editingIndex ? { title, content } : entry
+      );
+      setEntries(updatedEntries);
     } else {
-      setPosts([...posts, newPost]);
+      setEntries([...entries, { title, content }]);
     }
-
     setTitle('');
     setContent('');
-    setImage(null);
-    setEditingId(null);
+    setEditingIndex(-1);
   };
 
-  const handleViewPost = (postId) => {
-    const post = posts.find((post) => post.id === postId);
-    setSelectedPost(post);
+  const handleVisualize = (entry) => {
+    alert(`Título: ${entry.title}\n\nContenido: ${entry.content}`);
   };
 
-  const handleEditPost = (postId) => {
-    const post = posts.find((post) => post.id === postId);
-    setTitle(post.title);
-    setContent(post.content);
-    setImage(null); 
-    setEditingId(post.id);
+  const handleEdit = (index) => {
+    setEditingIndex(index);
+    setTitle(entries[index].title);
+    setContent(entries[index].content);
   };
 
-  const handleDeletePost = (postId) => {
-    setPosts(posts.filter((post) => post.id !== postId));
+  const handleDelete = (indexToDelete) => {
+    setEntries(entries.filter((_, index) => index !== indexToDelete));
+    if (editingIndex === indexToDelete) {
+      setTitle('');
+      setContent('');
+      setEditingIndex(-1);
+    }
   };
+
+  const handleLogout = () => {
+    navigate('/'); 
+  };
+
+  const onEmojiClick = (event, emojiObject) => {
+    const ref = textAreaRef.current;
+    const start = content.substring(0, ref.selectionStart);
+    const end = content.substring(ref.selectionEnd);
+    const textWithEmoji = start + emojiObject.emoji + end;
+    setContent(textWithEmoji);
+    const newCursorPosition = start.length + emojiObject.emoji.length;
+    ref.focus();
+    ref.setSelectionRange(newCursorPosition, newCursorPosition);
+    setShowPicker(false);
+  };
+  
 
   return (
-    <div className="admin-container">
-      <h1>Administración de Blogs</h1>
-      <p>{`Usuario actual: ${userEmail}`}</p>
-      <form onSubmit={handleAddPost}>
+    <div>
+      <div style={{ position: 'relative' }}>
+        <h1>Bienvenido al Menú</h1>
+        <button
+          onClick={handleLogout}
+          style={{
+            position: 'absolute',
+            top: '-80px',
+            right: '10px',
+          }}
+        >
+          Salir
+        </button>
+      </div>
+      Usuario: 
+      <div>
         <label htmlFor="title">Título:</label>
         <input
           type="text"
           id="title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          required
+          placeholder="Escribe el título aquí"
         />
-        <br /><br />
+      </div>
+      <div>
         <label htmlFor="content">Contenido:</label>
         <textarea
+          ref={textAreaRef}
           id="content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          required
+          placeholder="Escribe el contenido aquí"
         />
-        <div>
-          {emojis.map((emoji) => (
-            <button
-              key={emoji}
-              type="button"
-              onClick={() => addEmoji(emoji)}
-              style={{ fontSize: '1.5rem', cursor: 'pointer', border: 'none', background: 'none' }}
-            >
-              {emoji}
-            </button>
-          ))}
+        <button onClick={() => setShowPicker(val => !val)}>😊</button>
+        {showPicker && <Picker onEmojiClick={onEmojiClick} />}
+      </div>
+      
+      <button onClick={handleCreateOrUpdate}>
+        {editingIndex >= 0 ? 'Actualizar' : 'Crear'}
+      </button>
+      {entries.map((entry, index) => (
+        <div key={index}>
+          <h2>{entry.title}</h2>
+          <p>{entry.content}</p>
+          <button onClick={() => handleEdit(index)}>Editar</button>
+          <button onClick={() => handleVisualize(entry)}>Visualizar</button>
+          <button onClick={() => handleDelete(index)}>Eliminar</button>
         </div>
-        <br /><br />
-        <label htmlFor="image">Imagen:</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-        />
-        {image && (
-          <img
-            src={URL.createObjectURL(image)}
-            alt="Preview"
-            style={{ width: '100px', height: 'auto' }}
-          />
-        )}
-        <br /><br />
-        <button type="submit">{editingId ? 'Actualizar' : 'Crear'}</button>
-      </form>
-      <h2>Publicaciones Existentes</h2>
-      <ul>
-        {posts.map((post) => (
-          <li key={post.id}>
-            <h3>{post.title}</h3>
-            <p>{post.content}</p>
-            <p>{`Autor: ${post.userEmail}`}</p> {}
-            {post.image && (
-              <img
-                src={post.image}
-                alt="Post"
-                style={{ width: '100px', height: 'auto' }}
-              />
-            )}
-            <p>Fecha de publicación: {post.createdAt}</p>
-            <button onClick={() => handleViewPost(post.id)}>Visualizar</button>
-            <button onClick={() => handleEditPost(post.id)}>Editar</button>
-            <button onClick={() => handleDeletePost(post.id)}>Eliminar</button>
-          </li>
-        ))}
-      </ul>
-      {selectedPost && (
-        <div className="admin-preview">
-          <h2>{selectedPost.title}</h2>
-          <p>{selectedPost.content}</p>
-          {selectedPost.image && (
-            <img
-              src={selectedPost.image}
-              alt="Selected Post"
-              style={{ width: '100px', height: 'auto' }}
-            />
-          )}
-          <p>Fecha de publicación: {selectedPost.createdAt}</p>
-        </div>
-      )}
+      ))}
     </div>
   );
-};
+}
 
 export default Menu;

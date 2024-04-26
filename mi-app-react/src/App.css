@@ -1,100 +1,172 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+
+body, html {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Arial', sans-serif;
+  background-color: #f7f7f7;
+}
+
+.form-container {
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
-
-.content-textarea,
-input[type="text"],
-input[type="email"],
-input[type="password"],
-textarea {
+input[type="email"], input[type="password"] {
   width: 100%;
-  height: auto; 
-  padding: 10px; 
-  border: 1px solid #ddd; 
-  border-radius: 4px; 
+  padding: 15px;
+  margin: 10px 0;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
   box-sizing: border-box; 
-  margin-top: 8px; 
-  resize: vertical; 
-  background-color: #f0f0f0; 
-  color: #333; 
 }
 
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus,
-textarea:focus {
-  background-color: #e6e6e6; 
+input[type="submit"] {
+  width: 100%;
+  padding: 15px;
+  margin-top: 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #333333;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover {
+  background-color: #ffffff;
 }
 
 
-.admin-container {
-  display: flex;
-  min-height: 100vh;
-  overflow-y: auto;
+label {
+  display: block;
+  margin-top: 20px;
+  text-align: left;
+  font-size: 14px;
+  color: #ffffff;
 }
 
-.admin-content {
-  flex: 3;
-  padding: 20px;
+h2 {
+  margin: 0 0 20px;
+  font-size: 24px;
+  color: #333;
 }
 
-.admin-preview {
-  flex: 1;
-  background-color: #f8f9fa; 
-  border-left: 1px solid #ccc; 
-  overflow-y: auto; 
-  padding: 20px;
-}
 
-.empty {
-  text-align: center; 
-  padding: 2rem;
-}
-
-button {
-  margin-right: 10px;
-  background-color: #5c6bc0; 
-  color: #fff; 
-  border: none; 
-  padding: 10px 15px; 
-  border-radius: 5px; 
-  cursor: pointer; 
-}
-
-button:hover {
-  background-color: #3f51b5; 
-}
-
-.form-group {
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
+  justify-content: center;
+  background-color: #333; 
 }
 
-.form-group label {
-  flex-basis: 100px; 
-  flex-shrink: 0;
-  margin-right: 1rem;
+.menu-container {
+  width: 90%;
+  max-width: 500px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-.form-group input,
-.form-group textarea {
-  flex-grow: 1; 
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+  padding-top: 20px; 
+}
+
+.menu-header h1 {
+  color: #ffffff; 
+  font-size: 24px;
+  margin: 0;
+}
+
+.exit-button {
+  color: white;
+  background-color: #D32F2F;
+  border: none;
+  border-radius: 3px;
+  padding: 10px 20px;
+  cursor: pointer;
+  position: absolute;
+  top: 0; 
+  right: 0;
+  transform: translateY(-100%); 
+}
+
+
+.emoji-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem; 
+}
+
+.emoji-picker-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.emoji-picker-react {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  transform: translate(0, 100%);
+}
+
+input[type='text'],
+input[type='email'],
+input[type='password'],
+textarea {
+  width: calc(100% - 20px);
   padding: 10px;
+  margin-bottom: 20px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 button {
-  padding: 10px 20px;
-  margin-top: 10px; 
+  background-color: #5C6BC0;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
 }
 
-.create-post-button {
+.emoji-and-image-upload-container {
   display: flex;
-  justify-content: flex-end; 
+  align-items: center;
+  gap: 10px; 
+}
+
+.image-upload-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.image-upload-button input[type="file"] {
+  display: none;
+}
+
+.image-upload-button label {
+  cursor: pointer;
+  background-color: #5C6BC0;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
 }
