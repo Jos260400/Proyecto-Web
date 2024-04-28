@@ -1,34 +1,43 @@
 const express = require('express');
-const { MongoClient } = require('mongodb');
-
+const sqlite3 = require('sqlite3').verbose();
+const bcrypt = require('bcrypt');
+const cors = require('cors');
 const app = express();
-const port = 3000;
-const uri = 'tu_uri_de_conexion_mongodb';
 
-app.use(express.json());
+app.use(cors()); 
+app.use(express.json()); 
 
 
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-
-async function main() {
-  try {
-
-    await client.connect();
-    console.log('Conectado a la base de datos');
-    
-
-    app.get('/', (req, res) => {
-      res.send('Hola Mundo!');
-    });
-
- 
-    app.listen(port, () => {
-      console.log(`Servidor escuchando en http://localhost:${port}`);
-    });
-  } catch (e) {
-    console.error(e);
+const db = new sqlite3.Database('./users.db', (err) => {
+  if (err) {
+    console.error(err.message);
   }
-}
+  console.log('Conectado a la base de datos SQLite.');
+});
 
-main().catch(console.error);
 
+db.run(`CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  password TEXT NOT NULL
+)`);
+
+s
+app.post('/register', async (req, res) => {
+  const { email, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  db.run(`INSERT INTO users (email, password) VALUES (?, ?)`, [email, hashedPassword], function(err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json({ id: this.lastID });
+  });
+});
+
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});

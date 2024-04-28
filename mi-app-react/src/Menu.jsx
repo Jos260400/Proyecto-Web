@@ -1,11 +1,8 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Picker from 'emoji-picker-react';
-import './App.css';
+import React, { useState, useRef, lazy, Suspense } from 'react';
 
-function Menu() {
-  const navigate = useNavigate();
+const Picker = lazy(() => import('emoji-picker-react')); 
 
+function Menu({ onLogout }) {
   const [entries, setEntries] = useState([]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -47,7 +44,7 @@ function Menu() {
   };
 
   const handleLogout = () => {
-    navigate('/'); 
+    onLogout(); 
   };
 
   const onEmojiClick = (event, emojiObject) => {
@@ -61,47 +58,30 @@ function Menu() {
     ref.setSelectionRange(newCursorPosition, newCursorPosition);
     setShowPicker(false);
   };
-  
 
   return (
     <div>
       <div style={{ position: 'relative' }}>
         <h1>Bienvenido al Menú</h1>
-        <button
-          onClick={handleLogout}
-          style={{
-            position: 'absolute',
-            top: '-80px',
-            right: '10px',
-          }}
-        >
+        <button onClick={handleLogout} style={{ position: 'absolute', top: '-80px', right: '10px' }}>
           Salir
         </button>
       </div>
-      Usuario: 
+      Usuario:
       <div>
         <label htmlFor="title">Título:</label>
-        <input
-          type="text"
-          id="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Escribe el título aquí"
-        />
+        <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Escribe el título aquí" />
       </div>
       <div>
         <label htmlFor="content">Contenido:</label>
-        <textarea
-          ref={textAreaRef}
-          id="content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Escribe el contenido aquí"
-        />
+        <textarea ref={textAreaRef} id="content" value={content} onChange={(e) => setContent(e.target.value)} placeholder="Escribe el contenido aquí" />
         <button onClick={() => setShowPicker(val => !val)}>😊</button>
-        {showPicker && <Picker onEmojiClick={onEmojiClick} />}
+        {showPicker && (
+          <Suspense fallback={<div>Cargando emojis...</div>}>
+            <Picker onEmojiClick={onEmojiClick} />
+          </Suspense>
+        )}
       </div>
-      
       <button onClick={handleCreateOrUpdate}>
         {editingIndex >= 0 ? 'Actualizar' : 'Crear'}
       </button>

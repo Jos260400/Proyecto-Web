@@ -170,3 +170,21 @@ button {
   padding: 5px 10px;
   border-radius: 4px;
 }
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    padding: 20px;
+  }
+}
