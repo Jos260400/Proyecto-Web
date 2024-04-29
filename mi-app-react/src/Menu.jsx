@@ -1,42 +1,61 @@
-import React, { useState, useRef, lazy, Suspense } from 'react';
+import React, { useState, useRef, useEffect, lazy, Suspense } from 'react';
 
-const Picker = lazy(() => import('emoji-picker-react')); 
+const Picker = lazy(() => import('emoji-picker-react'));
 
-function Menu({ onLogout }) {
-  const [entries, setEntries] = useState([]);
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [editingIndex, setEditingIndex] = useState(-1);
-  const [showPicker, setShowPicker] = useState(false);
-  const textAreaRef = useRef(null);
+function Menu({ onLogout, userEmail }) {
+ 
+  const [entries, setEntries] = useState(() => {
+    const savedEntries = localStorage.getItem('entries');
+    return savedEntries ? JSON.parse(savedEntries) : [];
+  });
+
+  const [title, setTitle] = useState(''); 
+  const [content, setContent] = useState(''); 
+  const [editingIndex, setEditingIndex] = useState(-1); 
+  const [showPicker, setShowPicker] = useState(false); 
+  const textAreaRef = useRef(null); 
+
+  
+  useEffect(() => {
+    localStorage.setItem('entries', JSON.stringify(entries));
+  }, [entries]);
 
   const handleCreateOrUpdate = () => {
     if (editingIndex >= 0) {
+      
       const updatedEntries = entries.map((entry, index) =>
-        index === editingIndex ? { title, content } : entry
+        index === editingIndex ? { ...entry, title, content } : entry
       );
       setEntries(updatedEntries);
     } else {
-      setEntries([...entries, { title, content }]);
+      
+      setEntries([...entries, { title, content, userEmail }]); 
     }
+    
     setTitle('');
     setContent('');
     setEditingIndex(-1);
   };
 
   const handleVisualize = (entry) => {
+    
     alert(`Título: ${entry.title}\n\nContenido: ${entry.content}`);
   };
 
   const handleEdit = (index) => {
+    
+    const entry = entries[index];
     setEditingIndex(index);
-    setTitle(entries[index].title);
-    setContent(entries[index].content);
+    setTitle(entry.title);
+    setContent(entry.content);
   };
 
   const handleDelete = (indexToDelete) => {
-    setEntries(entries.filter((_, index) => index !== indexToDelete));
+    
+    const filteredEntries = entries.filter((_, index) => index !== indexToDelete);
+    setEntries(filteredEntries);
     if (editingIndex === indexToDelete) {
+     
       setTitle('');
       setContent('');
       setEditingIndex(-1);
@@ -44,38 +63,63 @@ function Menu({ onLogout }) {
   };
 
   const handleLogout = () => {
-    onLogout(); 
+    
+    onLogout();
   };
 
   const onEmojiClick = (event, emojiObject) => {
+    
     const ref = textAreaRef.current;
     const start = content.substring(0, ref.selectionStart);
     const end = content.substring(ref.selectionEnd);
-    const textWithEmoji = start + emojiObject.emoji + end;
-    setContent(textWithEmoji);
-    const newCursorPosition = start.length + emojiObject.emoji.length;
+    const newText = `${start}${emojiObject.emoji}${end}`;
+    setContent(newText);
     ref.focus();
-    ref.setSelectionRange(newCursorPosition, newCursorPosition);
+    ref.setSelectionRange(start.length + emojiObject.emoji.length, start.length + emojiObject.emoji.length);
     setShowPicker(false);
   };
+
+  
+  const sessionTime = 30 * 60 * 1000;
+
+  useEffect(() => {
+   
+    const timer = setTimeout(() => {
+      handleLogout();
+    }, sessionTime);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div>
       <div style={{ position: 'relative' }}>
         <h1>Bienvenido al Menú</h1>
-        <button onClick={handleLogout} style={{ position: 'absolute', top: '-80px', right: '10px' }}>
+        <p>Usuario: {userEmail}</p>  
+        <button onClick={handleLogout} style={{ position: 'absolute', top: '20px', right: '10px' }}>
           Salir
         </button>
       </div>
-      Usuario:
       <div>
         <label htmlFor="title">Título:</label>
-        <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Escribe el título aquí" />
+        <input
+          type="text"
+          id="title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Escribe el título aquí"
+        />
       </div>
       <div>
         <label htmlFor="content">Contenido:</label>
-        <textarea ref={textAreaRef} id="content" value={content} onChange={(e) => setContent(e.target.value)} placeholder="Escribe el contenido aquí" />
-        <button onClick={() => setShowPicker(val => !val)}>😊</button>
+        <textarea
+          ref={textAreaRef}
+          id="content"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="Escribe el contenido aquí"
+        />
+        <button onClick={() => setShowPicker(!showPicker)}>😊</button>
         {showPicker && (
           <Suspense fallback={<div>Cargando emojis...</div>}>
             <Picker onEmojiClick={onEmojiClick} />
