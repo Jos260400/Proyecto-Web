@@ -8,3 +8,12 @@
         - npm run dev
         - http://localhost:5173/
 
+
+    Servidor
+        - Descargar e instalar Node.js
+        - cd mi-app-react
+        - npm init -y
+        - npm install express
+        - node app.js
+
+
