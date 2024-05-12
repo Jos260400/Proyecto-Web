@@ -14,7 +14,6 @@ function Menu({ onLogout, userEmail }) {
   const [showPicker, setShowPicker] = useState(false);
   const textAreaRef = useRef(null);
 
-  
   const emojis = ["😀", "😂", "👍", "😍", "😒", "😭", "🎉", "🔥", "🤔", "🥰", "😇", "😜", "🧐", "🤩 ", "🥳 ", "😡", "🤯 "];
 
   useEffect(() => {
@@ -28,7 +27,7 @@ function Menu({ onLogout, userEmail }) {
       );
       setEntries(updatedEntries);
     } else {
-      setEntries([...entries, { title, content, userEmail }]);
+      setEntries([...entries, { title, content, userEmail, date: new Date().toLocaleString() }]);
     }
     setTitle('');
     setContent('');
@@ -56,10 +55,6 @@ function Menu({ onLogout, userEmail }) {
     }
   };
 
-  const handleLogout = () => {
-    onLogout();
-  };
-
   const handleEmojiClick = emoji => {
     const ref = textAreaRef.current;
     const start = content.substring(0, ref.selectionStart);
@@ -74,7 +69,8 @@ function Menu({ onLogout, userEmail }) {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      handleLogout();
+      onLogout();
+      window.location.href = '/login'; 
     }, sessionTime);
 
     return () => clearTimeout(timer);
@@ -85,7 +81,7 @@ function Menu({ onLogout, userEmail }) {
       <div style={{ position: 'relative' }}>
         <h1>Bienvenido al Menú</h1>
         <p>Usuario: {userEmail}</p>
-        <button onClick={handleLogout} style={{ position: 'absolute', top: '-50px', right: '10px' }}>
+        <button onClick={() => { window.location.href = '/'; }} style={{ position: 'absolute', top: '-50px', right: '10px' }}>
           Salir
         </button>
       </div>
@@ -127,6 +123,7 @@ function Menu({ onLogout, userEmail }) {
         <div key={index}>
           <h2>{entry.title}</h2>
           <p>{entry.content}</p>
+          <p>Fecha y hora: {entry.date}</p>
           <button onClick={() => handleEdit(index)}>Editar</button>
           <button onClick={() => handleVisualize(entry)}>Visualizar</button>
           <button onClick={() => handleDelete(index)}>Eliminar</button>
